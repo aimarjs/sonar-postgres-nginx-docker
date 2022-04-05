@@ -1,0 +1,56 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    container_name: nginx
+    networks:
+      - sonarnet
+    ports:
+      - 443:443
+    volumes:
+      - ./ssl/star_tba_nl.key:/etc/nginx/star_tba_nl.key:ro
+      - ./ssl/star_tba_nl.crt:/etc/nginx/bundle.crt:ro
+      - ./nginx:/etc/nginx/conf.d/:z
+  sonarqube:
+    image: mc1arke/sonarqube-with-community-branch-plugin:latest
+    restart: unless-stopped
+    container_name: sonarqube
+    networks:
+      - sonarnet
+    depends_on:
+      - db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    ports:
+      - '9000:9000'
+      - '9092:9092'
+  db:
+    image: postgres:12
+    restart: unless-stopped
+    container_name: postgres
+    networks:
+      - sonarnet
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql:
+  postgresql_data:
+
+networks:
+  sonarnet:
+    driver: bridge
