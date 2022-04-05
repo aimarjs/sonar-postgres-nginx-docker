@@ -10,7 +10,7 @@ services:
       - 443:443
     volumes:
       - ./ssl/star_tba_nl.key:/etc/nginx/star_tba_nl.key:ro
-      - ./ssl/star_tba_nl.crt:/etc/nginx/bundle.crt:ro
+      - ./ssl/bundle.crt:/etc/nginx/bundle.crt:ro
       - ./nginx:/etc/nginx/conf.d/:z
   sonarqube:
     image: mc1arke/sonarqube-with-community-branch-plugin:latest
